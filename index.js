@@ -196,7 +196,7 @@ function clearContentsOf(element) {
 function addTaskClicked() {
 
   let textItem = document.querySelector("#text-box-in");
-  let text = textItem.value;
+  let text = textItem.value.trim();
   if (text === "") return;
 
   let tasksContainer = document.querySelector("#tasks");
