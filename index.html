@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Metadata -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Links -->
+    <!-- Tab Icon -->
+    <link
+      rel="icon"
+      href="./images/favicon-32x32.png"
+      type="image/png"
+      sizes="32x32"
+    />
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" type="text/css" href="./index.css" />
+    <!-- Boostrap Icons-->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Scripts -->
+    <!-- Main JS -->
+    <script type="text/javascript" src="./index.js"></script>
+
+    <!-- Page Title -->
+    <title>Frontend Mentor | Todo app</title>
+  </head>
+  <body>
+    <div id="background"></div>
+    <div id="container">
+      <header>
+        <p>TODO</p>
+        <button onclick="switchThemeClicked(this)">
+          <i class="bi bi-moon-fill"></i>
+        </button>
+      </header>
+      <div id="text-box-container">
+        <div id="text-box-circle"></div>
+        <input
+          onkeyup="textBoxKeyUp(event)"
+          maxlength="100"
+          id="text-box-in"
+          placeholder="Create a new todo..."
+        />
+        <button id="text-box-submit-btn" onclick="addTaskClicked()">
+          <i class="bi bi-plus"></i>
+        </button>
+      </div>
+      <div id="inner">
+        <div id="tasks">
+          <div id="tasks-no">
+            <img id="tasks-img" src="./images/notes.png" />
+            <p id="tasks-hint">Nothing to show</p>
+          </div>
+        </div>
+        <div id="controls">
+          <p>0 items left</p>
+          <div>
+            <button id="active-control-btn" onclick="AllClicked(this)">
+              All
+            </button>
+            <button onclick="ActiveClicked(this)">Active</button>
+            <button onclick="CompletedClicked(this)">Completed</button>
+          </div>
+          <button id="clear-btn" onclick="clearCompletedClicked(this)">
+            Clear Completed
+          </button>
+        </div>
+      </div>
+      <p id="drag-drop-title">Drag and drop to reorder list</p>
+    </div>
+  </body>
+</html>
