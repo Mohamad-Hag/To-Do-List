@@ -277,7 +277,6 @@ function ActiveClicked(e) {
     tasksNo.style.display = "flex";
   }
   currentControl = "active";
-  window.history.pushState({}, "active", "/active");
 }
 function CompletedClicked(e) {
   changeActiveStateOfControls(e);
@@ -298,7 +297,6 @@ function CompletedClicked(e) {
     tasksNo.style.display = "flex";
   }
   currentControl = "completed";    
-  window.history.pushState({}, "completed", "/completed");
 }
 function clearCompletedClicked(e) { 
   let itemsLeft = document.querySelectorAll("#controls p")[0];
