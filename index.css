@@ -463,6 +463,10 @@ header button i
     {
         margin-top: 80px;
     }
+    .task button
+    {
+        opacity: 1;
+    }
 }
 @media screen and (max-width: 400px)
 {
