@@ -5,27 +5,44 @@ let numberOfTasks = 0;
 let numberOfActiveTasks = 0;
 let currentControl = "all";
 let tasks = [];
+let storage = null;
 
 window.onload = () => {
   let textItem = document.querySelector("#text-box-in");
   textItem.focus();
+  storage = window.localStorage;
+  if (storage.getItem("isNew") === null) {
+    storage.setItem("isNew", "false");
+    storage.setItem("lastTaskId", "0");
+    storage.setItem("currentTheme", "l");
+    storage.setItem("numberOfCompleted", "0");
+    storage.setItem("numberOfTasks", "0");
+    storage.setItem("numberOfActiveTasks", "0");
+    storage.setItem("currentControl", "all");
+    storage.setItem("tasks", JSON.stringify(tasks));
+  } else {
+    lastTaskId = parseInt(storage.getItem("lastTaskId"));
+    currentTheme = storage.getItem("currentTheme");
+    numberOfCompleted = parseInt(storage.getItem("numberOfCompleted"));
+    numberOfTasks = parseInt(storage.getItem("numberOfTasks"));
+    numberOfActiveTasks = parseInt(storage.getItem("numberOfActiveTasks"));
+    currentControl = storage.getItem("currentControl");
+    tasks = JSON.parse(storage.getItem("tasks"));
+    viewTasks(currentControl);
+    document.querySelectorAll(
+      "#controls p"
+    )[0].innerText = `${numberOfActiveTasks} items left`;
+    setTheme(currentTheme);
+  }
 };
-function switchThemeClicked(e) {
+function setTheme(theme) {
   let root = document.querySelector(":root");
   let background = document.querySelector("#background");
-  let icon = e.children[0];
+  let icon = document.querySelectorAll("#switch-theme-btn i")[0];
   let textItem = document.querySelector("#text-box-in");
   textItem.focus();
 
-  if (currentTheme === "l") {
-    icon.setAttribute("class", "bi bi-sun-fill");
-    background.style.backgroundImage = "url('./images/bg-desktop-dark.jpg')";
-    root.style.setProperty("--cr1", "hsl(235, 21%, 11%)");
-    root.style.setProperty("--cr2", "#cacde820");
-    root.style.setProperty("--cr5", "hsl(234, 39%, 85%)");
-    root.style.setProperty("--header-cr", "hsl(235, 24%, 19%)");
-    currentTheme = "d";
-  } else {
+  if (theme === "l") {
     icon.setAttribute("class", "bi bi-moon-fill");
     background.style.backgroundImage = "url('./images/bg-desktop-light.jpg')";
     root.style.setProperty("--cr1", "hsl(0, 0%, 98%)");
@@ -33,6 +50,93 @@ function switchThemeClicked(e) {
     root.style.setProperty("--cr5", "hsl(235, 19%, 35%)");
     root.style.setProperty("--header-cr", "hsl(0, 0%, 100%)");
     currentTheme = "l";
+    storage.setItem("currentTheme", "l");
+  } else if (theme === "d") {
+    icon.setAttribute("class", "bi bi-sun-fill");
+    background.style.backgroundImage = "url('./images/bg-desktop-dark.jpg')";
+    root.style.setProperty("--cr1", "hsl(235, 21%, 11%)");
+    root.style.setProperty("--cr2", "#cacde820");
+    root.style.setProperty("--cr5", "hsl(234, 39%, 85%)");
+    root.style.setProperty("--header-cr", "hsl(235, 24%, 19%)");
+    currentTheme = "d";
+    storage.setItem("currentTheme", "d");
+  }
+}
+function viewTasks(type) {
+  let e = null;
+  let tasksContainer = document.querySelector("#tasks");
+
+  if (type === "all") {
+    e = document.querySelectorAll(".control-btn")[0];
+    changeActiveStateOfControls(e);
+    clearContentsOf(tasksContainer);
+    addTaskTo(tasksContainer, createNoMessage("Nothing to show"));
+    for (t of tasks) {
+      addTaskTo(
+        tasksContainer,
+        createNewTask(t.id, t.content, t.isChecked),
+        true
+      );
+    }
+    if (numberOfTasks === 0) {
+      let tasksNo = document.querySelector("#tasks-no");
+      tasksNo.style.display = "flex";
+    }
+    currentControl = "all";
+    storage.setItem("tasks", JSON.stringify(tasks));
+    storage.setItem("currentControl", currentControl);
+  } else if (type === "active") {
+    e = document.querySelectorAll(".control-btn")[1];
+    changeActiveStateOfControls(e);
+    clearContentsOf(tasksContainer);
+    addTaskTo(tasksContainer, createNoMessage("No active tasks"));
+    let activeTasks = tasks.filter((t) => t.isChecked === false);
+    for (t of activeTasks) {
+      addTaskTo(
+        tasksContainer,
+        createNewTask(t.id, t.content, t.isChecked),
+        true
+      );
+    }
+    if (numberOfActiveTasks === 0) {
+      let tasksNo = document.querySelector("#tasks-no");
+      tasksNo.style.display = "flex";
+    }
+    currentControl = "active";
+    storage.setItem("tasks", JSON.stringify(tasks));
+    storage.setItem("currentControl", currentControl);
+  } else if (type === "completed") {
+    e = document.querySelectorAll(".control-btn")[2];
+    changeActiveStateOfControls(e);
+    clearContentsOf(tasksContainer);
+    addTaskTo(tasksContainer, createNoMessage("No completed tasks"));
+    let completedTasks = tasks.filter((t) => t.isChecked === true);
+    for (t of completedTasks) {
+      addTaskTo(
+        tasksContainer,
+        createNewTask(t.id, t.content, t.isChecked),
+        true
+      );
+    }
+    if (numberOfCompleted === 0) {
+      let tasksNo = document.querySelector("#tasks-no");
+      tasksNo.style.display = "flex";
+    }
+    currentControl = "completed";
+    storage.setItem("tasks", JSON.stringify(tasks));
+    storage.setItem("currentControl", currentControl);
+  }
+}
+function switchThemeClicked(e) {
+  let root = document.querySelector(":root");
+  let background = document.querySelector("#background");
+  let icon = e.children[0];
+  let textItem = document.querySelector("#text-box-in");
+  textItem.focus();
+  if (currentTheme === "l") {
+    setTheme("d");
+  } else {
+    setTheme("l");
   }
 }
 function taskCheckClicked(e) {
@@ -51,12 +155,15 @@ function taskCheckClicked(e) {
     text.style.textDecoration = "line-through";
     text.style.opacity = ".5";
     numberOfCompleted++;
+    storage.setItem("numberOfCompleted", numberOfCompleted.toString());
     numberOfActiveTasks--;
+    storage.setItem("numberOfActiveTasks", numberOfActiveTasks.toString());
     tasks.forEach((t) => {
       if (t.id === taskId) {
         t.isChecked = true;
       }
     });
+    storage.setItem("tasks", JSON.stringify(tasks));
     if (currentControl === "active") {
       let taskWidth = getComputedStyle(task).getPropertyValue("width");
       task.style.transform = `translateX(${taskWidth})`;
@@ -66,6 +173,7 @@ function taskCheckClicked(e) {
           let textNo = document.querySelector("#tasks-no");
           textNo.style.display = "flex";
         }
+        storage.setItem("tasks", JSON.stringify(tasks));
       }, 300);
     }
   } else {
@@ -79,8 +187,11 @@ function taskCheckClicked(e) {
         t.isChecked = false;
       }
     });
+    storage.setItem("tasks", JSON.stringify(tasks));
     numberOfCompleted--;
+    storage.setItem("numberOfCompleted", numberOfCompleted.toString());
     numberOfActiveTasks++;
+    storage.setItem("numberOfActiveTasks", numberOfActiveTasks.toString());
     if (currentControl === "completed") {
       let taskWidth = getComputedStyle(task).getPropertyValue("width");
       task.style.transform = `translateX(${taskWidth})`;
@@ -90,6 +201,7 @@ function taskCheckClicked(e) {
           let textNo = document.querySelector("#tasks-no");
           textNo.style.display = "flex";
         }
+        storage.setItem("tasks", JSON.stringify(tasks));
       }, 300);
     }
   }
@@ -113,11 +225,13 @@ function removeTaskClicked(e) {
       isChecked = true;
     }
     count++;
+    storage.setItem("tasks", JSON.stringify(tasks));
   });
   setTimeout(() => {
     task.remove();
     let textNo = document.querySelector("#tasks-no");
     numberOfTasks--;
+    storage.setItem("numberOfTasks", numberOfTasks.toString());
     if (currentControl === "all") {
       if (isChecked) {
         numberOfCompleted--;
@@ -142,6 +256,8 @@ function removeTaskClicked(e) {
         numberOfCompleted = 0;
       }
     }
+    storage.setItem("numberOfActiveTasks", numberOfActiveTasks.toString());
+    storage.setItem("numberOfCompleted", numberOfCompleted.toString());
     itemsLeft.innerText = `${numberOfActiveTasks} items left`;
   }, 300);
 }
@@ -194,7 +310,6 @@ function clearContentsOf(element) {
   element.innerHTML = "";
 }
 function addTaskClicked() {
-
   let textItem = document.querySelector("#text-box-in");
   let text = textItem.value.trim();
   if (text === "") return;
@@ -212,14 +327,19 @@ function addTaskClicked() {
       document.querySelectorAll("#controls div:nth-child(2) button")[0]
     );
   lastTaskId++;
+  storage.setItem("lastTaskId", lastTaskId.toString());
+  console.log(storage.getItem("lastTaskId"));
   numberOfTasks++;
+  storage.setItem("numberOfTasks", numberOfTasks.toString());
   numberOfActiveTasks++;
+  storage.setItem("numberOfActiveTasks", numberOfActiveTasks.toString());
   itemsLeft.innerText = `${numberOfActiveTasks} items left`;
   tasks.unshift({
     id: lastTaskId,
     content: text,
     isChecked: false,
   });
+  storage.setItem("tasks", JSON.stringify(tasks));
   addTaskTo(tasksContainer, createNewTask(lastTaskId, text, false));
 }
 function textBoxKeyUp(event) {
@@ -240,71 +360,25 @@ function changeActiveStateOfControls(e) {
   e.setAttribute("id", "active-control-btn");
 }
 function AllClicked(e) {
-  changeActiveStateOfControls(e);
-
-  let tasksContainer = document.querySelector("#tasks");
-  clearContentsOf(tasksContainer);
-  addTaskTo(tasksContainer, createNoMessage("Nothing to show"));
-  for (t of tasks) {
-    addTaskTo(
-      tasksContainer,
-      createNewTask(t.id, t.content, t.isChecked),
-      true
-    );
-  }
-  if (numberOfTasks === 0) {
-    let tasksNo = document.querySelector("#tasks-no");
-    tasksNo.style.display = "flex";
-  }
-  currentControl = "all";
+  viewTasks("all");
 }
 function ActiveClicked(e) {
-  changeActiveStateOfControls(e);
-
-  let tasksContainer = document.querySelector("#tasks");
-  clearContentsOf(tasksContainer);
-  addTaskTo(tasksContainer, createNoMessage("No active tasks"));
-  let activeTasks = tasks.filter((t) => t.isChecked === false);
-  for (t of activeTasks) {
-    addTaskTo(
-      tasksContainer,
-      createNewTask(t.id, t.content, t.isChecked),
-      true
-    );
-  }
-  if (numberOfActiveTasks === 0) {
-    let tasksNo = document.querySelector("#tasks-no");
-    tasksNo.style.display = "flex";
-  }
-  currentControl = "active";
+  viewTasks("active");
 }
 function CompletedClicked(e) {
-  changeActiveStateOfControls(e);
-
-  let tasksContainer = document.querySelector("#tasks");
-  clearContentsOf(tasksContainer);
-  addTaskTo(tasksContainer, createNoMessage("No completed tasks"));
-  let completedTasks = tasks.filter((t) => t.isChecked === true);
-  for (t of completedTasks) {
-    addTaskTo(
-      tasksContainer,
-      createNewTask(t.id, t.content, t.isChecked),
-      true
-    );  
-  }
-  if (numberOfCompleted === 0) {
-    let tasksNo = document.querySelector("#tasks-no");
-    tasksNo.style.display = "flex";
-  }
-  currentControl = "completed";    
+  viewTasks("completed");
 }
-function clearCompletedClicked(e) { 
+function clearCompletedClicked(e) {
   let itemsLeft = document.querySelectorAll("#controls p")[0];
-  numberOfCompleted = 0;  
-  let tempTasks = tasks.filter(t => t.isChecked === false);
-  numberOfTasks -= (tasks.length - tempTasks.length);
+  numberOfCompleted = 0;
+  storage.setItem("numberOfCompleted", numberOfCompleted.toString());
+  let tempTasks = tasks.filter((t) => t.isChecked === false);
+  numberOfTasks -= tasks.length - tempTasks.length;
+  storage.setItem("numberOfTasks", numberOfTasks.toString());
   tasks = tempTasks;
   numberOfActiveTasks = numberOfTasks;
+  storage.setItem("numberOfActiveTasks", numberOfActiveTasks.toString());
+  storage.setItem("tasks", JSON.stringify(tasks));
   itemsLeft.innerText = `${numberOfActiveTasks} items left`;
   AllClicked(document.querySelectorAll("#controls div:nth-child(2) button")[0]);
 }

@@ -6,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Links -->
-    <!-- Tab Icon -->
-    <link
-      rel="icon"
-      href="./images/favicon-32x32.png"
-      type="image/png"
-      sizes="32x32"
-    />
     <!-- Main Stylesheet -->
     <link rel="stylesheet" type="text/css" href="./index.css" />
     <!-- Boostrap Icons-->
@@ -43,7 +36,7 @@
     <div id="container">
       <header>
         <p>TODO</p>
-        <button onclick="switchThemeClicked(this)">
+        <button id="switch-theme-btn" onclick="switchThemeClicked(this)">
           <i class="bi bi-moon-fill"></i>
         </button>
       </header>
@@ -54,6 +47,7 @@
           maxlength="100"
           id="text-box-in"
           placeholder="Create a new todo..."
+          autocomplete="off"
         />
         <button id="text-box-submit-btn" onclick="addTaskClicked()">
           <i class="bi bi-plus"></i>
@@ -69,11 +63,19 @@
         <div id="controls">
           <p>0 items left</p>
           <div>
-            <button id="active-control-btn" onclick="AllClicked(this)">
+            <button
+              id="active-control-btn"
+              class="control-btn"
+              onclick="AllClicked(this)"
+            >
               All
             </button>
-            <button onclick="ActiveClicked(this)">Active</button>
-            <button onclick="CompletedClicked(this)">Completed</button>
+            <button onclick="ActiveClicked(this)" class="control-btn">
+              Active
+            </button>
+            <button onclick="CompletedClicked(this)" class="control-btn">
+              Completed
+            </button>
           </div>
           <button id="clear-btn" onclick="clearCompletedClicked(this)">
             Clear Completed
